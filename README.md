@@ -24,4 +24,5 @@ $ PYTHONPATH=<python_path> ./rdma_rc_test.py --device r0 --server_ip 192.168.56.
 
 通过socket建链交换GID、QPN、MR的RKEY、MR的ADDDR，完成rdma操作。
 
-单机测试效果类似`lo_rc_send.py`
+单机测试效果：类似`lo_rc_send.py`
+双虚拟机测试效果：可以抓包看到建链通信的TCP包、rdma读写的RRoCE包

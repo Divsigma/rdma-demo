@@ -11,9 +11,9 @@ from pyverbs import wr
 from pyverbs import mr
 
 import argparse
+import time
 import utils.connection
 from utils.logging_utils import root_logger
-# from utils.connection import root_logger
 
 if __name__ == "__main__":
 
@@ -21,15 +21,6 @@ if __name__ == "__main__":
     parser.add_argument('--server_ip', dest='server_ip', type=str, default='')
     parser.add_argument('--device', dest='device_name', type=str, required=True)
     args = parser.parse_args()
-
-    is_server = True if args.server_ip == '' else False
-    if is_server:
-        root_logger.info(" ==== Working as Server ====")
-    else:
-        root_logger.info(" ==== Working as Client ====")
-
-    # ---- 建链 ----
-    conn = utils.connection.Connection(ip=args.server_ip)
 
     # ---- 获取通讯设备名 ----
     lst = device.get_device_list()
@@ -42,6 +33,16 @@ if __name__ == "__main__":
     device_name = args.device_name
     ctx = device.Context(name=device_name)
     root_logger.info("device_name = {}".format(device_name))
+
+
+    is_server = True if args.server_ip == '' else False
+    if is_server:
+        root_logger.info(" ==== Working as Server ====")
+    else:
+        root_logger.info(" ==== Working as Client ====")
+
+    # ---- 建链 ----
+    conn = utils.connection.Connection(ip=args.server_ip)
 
     # ---- 注册通信用的QP资源 ----
     pd0 = pd.PD(ctx)
@@ -104,8 +105,13 @@ if __name__ == "__main__":
         recv_content_str_data = "[Default Empty Recv Data]"
         mr_recv.write(recv_content_str_data, len(recv_content_str_data))
         wr_recv = wr.RecvWR(wr_id=RECV_WR_ID, num_sge=len(recv_sge_list), sg=recv_sge_list)
-        rcqp.post_recv(wr_recv)
         root_logger.warning("mr_recv content before: [{}]".format(mr_recv.read(mr_recv.length, offset=0).decode()))
+
+        # 同步：发送方post_send前、接收方post_recv后
+        # 否则接收方可能无法从CQ中poll出post_recv的CQE
+        # time.sleep(2)
+        rcqp.post_recv(wr_recv)
+        conn.handshake(syn=1)
     else:
         # 客户端只管发送
         send_content_str_data = ">>> client saying hello .......... |"
@@ -118,7 +124,9 @@ if __name__ == "__main__":
         addr = remote_mr_info['addr']
         root_logger.info("remote rkey=0x{:x}, remote addr=0x{:x}".format(rkey, addr))
         wr_send.set_wr_rdma(rkey=rkey, addr=addr)
-
+        # 同步：发送方post_send前、接收方post_recv后
+        # 否则接收方可能无法从CQ中poll出post_recv的CQE
+        conn.handshake(syn=1)
         rcqp.post_send(wr_send)
 
     # 等待接收WR或发送WR完成
@@ -126,6 +134,8 @@ if __name__ == "__main__":
     wcs = None
     while npolled <= 0:
         npolled, wcs = cq0.poll()
+    # npolled, wcs = cq0.poll()
+    # time.sleep(1)
 
     root_logger.warning("mr_recv content after: [{}]".format(mr_recv.read(mr_recv.length, offset=0).decode()))
 

@@ -17,7 +17,7 @@ class Connection:
         else:
             self.sock.connect((ip, port))
             root_logger.info("connect to : {}".format((ip, port)))
-    
+
     def handshake(self, **kwargs):
         import json
         root_logger.info("kwargs to handshake: {}".format(kwargs))
@@ -26,8 +26,11 @@ class Connection:
         self.sock.send(msg_str.encode())
         
         recv_msg_str = self.sock.recv(100).decode()
-        recv_msg = json.loads(recv_msg_str)
-
-        root_logger.info("got recv_msg: {}".format(recv_msg))
+        recv_msg = None
+        if len(recv_msg_str) == 0:
+            root_logger.error("handshake() recv 0 after sending msg: [{}]".format(msg_str))
+        else:
+            recv_msg = json.loads(recv_msg_str)
+            root_logger.info("got recv_msg: {}".format(recv_msg))
         
         return recv_msg
