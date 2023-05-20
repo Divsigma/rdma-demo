@@ -43,7 +43,7 @@
 // 
 // NOTE：服务端总体流程如下（客户端类似，去掉监听、accept综合成connect。connect时发送REQ和RTU）
 //       -> 创建cmid（socket的fd），需要绑定RDMA设备 -> 创建qp（socket）
-//       -> 监听（bind+listen），无需bind
+//       -> 监听（bind+listen）
 //       -> 前半段accept（get_request），分配cmid和qp 
 //        -> 准备RDMA的读写MR，握手包private-data校验等
 //       -> 后半段accept，发送二次握手的REP或REJ包
@@ -122,14 +122,14 @@ static int run(void)
 	// rdma_create_ep vs rdma_create_id：
 	//   根据rdma_cm手册，前者封装了若干函数
 	// 根据rdma_create_ep源码：
-	//   封装了rdma_create_id、resolve_addr（创建cmid需要绑定RDMA设备）、create_qp等
+	//   封装了rdma_create_id、bind_addr、resolve_addr（创建cmid需要绑定RDMA设备）、create_qp等
 	ret = rdma_create_ep(&listen_id, res, NULL, &init_attr);
 	if (ret) {
 		perror("rdma_create_ep");
 		goto out_free_addrinfo;
 	}
 	
-	// 类似bind+listen。
+	// 类似listen。
 	// 但不同于socket编程：
 	//   此时服务端listen_id在rdma_listen前不用rdma_bind_addr
 	// 为啥不用bind（猜测）：
