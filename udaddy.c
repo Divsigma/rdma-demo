@@ -634,6 +634,7 @@ out:
 //   client$ udaddy -s <server_ip>
 // 
 // gdb命令：
+//   gdb -tui（显示代码）
 //   next(n)、step(s)、finish(fin)、backtrace(bt)、break(b)
 // 
 // 服务端大致流程（肉眼读/插桩 + 2连接的抓包 + gdb跟踪）：
@@ -649,10 +650,11 @@ out:
 //   -> 从WC中获取对端地址信息并生成AH（create_reply_ah()）
 //   -> 最后给所有的cmid的对端AH发送回复（post_send）
 // 
-// 客户端大致流程：
+// 客户端大致流程（未抓包+跟踪，可类似操作）：
 //   -> 注册channel，建立cmid连接池，绑定将连接池cmid的CM事件绑定到同一channel
 //   -> 在channel上阻塞等待CM事件，处理完连接池中的事件
 //      客户端处理事件大致有ADDR_RESOLVED->ROUTE_RESOLVED->ESTABLISHED
+//      （gdb+抓包可知，SIDR_REP在服务端accept后才触发，客户端应该是通过SIDR_REP获取信息生成AH）
 //   -> 依次处理cmid池中的WC，此时可以同一等待post_send和post_recv的WC了
 // =================================================
 
