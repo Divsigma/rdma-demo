@@ -29,6 +29,8 @@ $ PYTHONPATH=<python_path> ./rdma_rc_test.py --device r0 --server_ip 192.168.56.
 单机测试效果：类似`lo_rc_send.py`
 双虚拟机测试效果：可以抓包看到建链通信的TCP包、rdma读写的RRoCE包
 
-### `rdma_server.c`和`rdma_client.c`
+### `rdma_server.c`、`rdma_client.c`和`udaddy.c`
 
-取自rdma-core/librdmacm/examples/，备注了个人对CM建链和RDMA通信过程中各系统调用的理解
+取自rdma-core/librdmacm/examples/，备注了个人对CM的RC/UD建链及RDMA通信过程中各系统调用的理解。
+
+在rdma-core/目录下./build.sh编译后，可用gdb跟踪调试（后续考虑配置vscode来跟踪）

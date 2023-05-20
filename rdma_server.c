@@ -42,7 +42,7 @@
 //          对server和client端系统调用流程作概览
 // 
 // NOTE：服务端总体流程如下（客户端类似，去掉监听、accept综合成connect。connect时发送REQ和RTU）
-//       -> 创建cmid（socket的fd），需要绑定RDMA设备 -> 创建qp（socket）
+//       -> 创建cmid（socket的fd），需要绑定RDMA设备（获取GID？） -> 创建qp（socket）
 //       -> 监听（bind+listen）
 //       -> 前半段accept（get_request），分配cmid和qp 
 //        -> 准备RDMA的读写MR，握手包private-data校验等
