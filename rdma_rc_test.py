@@ -20,6 +20,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--server_ip', dest='server_ip', type=str, default='')
     parser.add_argument('--device', dest='device_name', type=str, required=True)
+    parser.add_argument('--cm', dest='cm', type=str, default=None)
     args = parser.parse_args()
 
     # ---- 获取通讯设备名 ----
@@ -42,7 +43,12 @@ if __name__ == "__main__":
         root_logger.info(" ==== Working as Client ====")
 
     # ---- 建链 ----
-    conn = utils.connection.Connection(ip=args.server_ip)
+    conn = None
+    if args.cm:
+        conn = utils.connection.CM(ip=args.server_ip)
+    else:
+        conn = utils.connection.Connection(ip=args.server_ip)
+    assert conn
 
     # ---- 注册通信用的QP资源 ----
     pd0 = pd.PD(ctx)
