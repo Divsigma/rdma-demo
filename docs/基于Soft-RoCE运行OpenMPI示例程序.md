@@ -138,7 +138,7 @@ $ mpirun -np 2 -H master:1,host:1 \
 
 ## （1）使用ucx_perftest
 
-根据`ucx_perftest -h`的说明和OpenUCX文档说明，需要设置UCX_NET_DEVICES和UCX_TLS参数。可以通过`~/.bashrc`指定。一般来说只需要指定UCX_NET_DEVICES，UCX会自动选择UCX_TLS。
+根据`ucx_perftest -h`的说明和OpenUCX文档说明，需要设置UCX_NET_DEVICES和UCX_TLS参数。可以通过`~/.bashrc`指定。（对OMPI+UCX联调，似乎只需要指定UCX_NET_DEVICES，OMPI会自动选择UCX_TLS）
 
 如何根据`ucx_info -d`设置参数：[Frequently Asked Questions &mdash; OpenUCX documentation](https://openucx.readthedocs.io/en/master/faq.html#which-transports-does-ucx-use)
 
